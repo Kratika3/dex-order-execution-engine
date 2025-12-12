@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Order Execution - WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .container {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #0f3460;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #a8b2d1;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            font-size: 16px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        #status {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0f3460;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        .status-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid;
+            background: #1a1a2e;
+            border-radius: 3px;
+        }
+        .PENDING { border-color: #ffd60a; }
+        .ROUTING { border-color: #00b4d8; }
+        .BUILDING { border-color: #0096c7; }
+        .SUBMITTED { border-color: #48cae4; }
+        .CONFIRMED { border-color: #06d6a0; }
+        .FAILED { border-color: #ef476f; }
+        .order-id {
+            font-family: monospace;
+            background: #0f3460;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Solana Order Execution Engine</h1>
+        
+        <div class="form-group">
+            <label>API Base URL</label>
+            <input type="text" id="apiUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+        </div>
+
+        <div class="form-group">
+            <label>Trading Pair</label>
+            <input type="text" id="pair" value="SOL-USDC" placeholder="SOL-USDC">
+        </div>
+
+        <div class="form-group">
+            <label>Amount</label>
+            <input type="number" id="amount" value="10.5" step="0.001" min="0.001">
+        </div>
+
+        <div class="form-group">
+            <label>Direction</label>
+            <select id="direction">
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+            </select>
+        </div>
+
+        <button onclick="createOrder()">Create Order</button>
+        <button onclick="createMultipleOrders()">Create 5 Orders (Concurrency Test)</button>
+
+        <div id="status">
+            <h3>Order Status Updates</h3>
+            <p>No orders yet. Create an order to see real-time updates.</p>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const activeWebSockets = new Map();
+
+        async function createOrder() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const pair = document.getElementById('pair').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const direction = document.getElementById('direction').value;
+
+            try {
+                const response = await fetch(`${apiUrl}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pair, amount, direction })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addStatusItem(data.orderId, 'Order Created', 'PENDING', data);
+                    connectWebSocket(data.orderId, apiUrl);
+                } else {
+                    addStatusItem('error', 'Failed to create order', 'FAILED', data);
+                }
+            } catch (error) {
+                addStatusItem('error', 'Network error', 'FAILED', { error: error.message });
+            }
+        }
+
+        async function createMultipleOrders() {
+            const count = 5;
+            statusDiv.innerHTML = '<h3>Order Status Updates</h3><p>Creating ' + count + ' orders...</p>';
+            
+            for (let i = 0; i < count; i++) {
+                await createOrder();
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between requests
+            }
+        }
+
+        function connectWebSocket(orderId, apiUrl) {
+            const wsUrl = apiUrl.replace('http', 'ws') + `/ws/orders/${orderId}`;
+            const ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log(`WebSocket connected for order ${orderId}`);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type !== 'connected') {
+                    addStatusItem(orderId, data.status, data.status, data);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error(`WebSocket error for order ${orderId}:`, error);
+                addStatusItem(orderId, 'WebSocket Error', 'FAILED', { error: 'Connection failed' });
+            };
+
+            ws.onclose = () => {
+                console.log(`WebSocket closed for order ${orderId}`);
+                activeWebSockets.delete(orderId);
+            };
+
+            activeWebSockets.set(orderId, ws);
+        }
+
+        function addStatusItem(orderId, message, status, data) {
+            const timestamp = new Date().toLocaleTimeString();
+            const item = document.createElement('div');
+            item.className = `status-item ${status}`;
+            item.innerHTML = `
+                <strong>[${timestamp}]</strong> 
+                <span class="order-id">${orderId.substring(0, 8)}...</span> 
+                → ${message}
+                ${data.txHash ? `<br><small>TxHash: ${data.txHash.substring(0, 20)}...</small>` : ''}
+                ${data.executionPrice ? `<br><small>Price: $${data.executionPrice}</small>` : ''}
+            `;
+
+            // Prepend to show newest first
+            const h3 = statusDiv.querySelector('h3');
+            if (h3.nextSibling) {
+                statusDiv.insertBefore(item, h3.nextSibling);
+            } else {
+                statusDiv.appendChild(item);
+            }
+
+            // Remove old "no orders" message
+            const noOrdersMsg = statusDiv.querySelector('p');
+            if (noOrdersMsg && noOrdersMsg.textContent.includes('No orders yet')) {
+                noOrdersMsg.remove();
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            activeWebSockets.forEach(ws => ws.close());
+        });
+    </script>
+</body>
+</html>

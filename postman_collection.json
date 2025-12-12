@@ -1,0 +1,150 @@
+{
+  "info": {
+    "name": "Solana Order Execution Engine",
+    "description": "API collection for testing the Solana Order Execution Engine with Market Orders, DEX routing, and WebSocket updates",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the server is running and all services are connected"
+      }
+    },
+    {
+      "name": "Create Order - BUY SOL-USDC",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pair\": \"SOL-USDC\",\n  \"amount\": 10.5,\n  \"direction\": \"BUY\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        },
+        "description": "Create a new BUY market order for SOL-USDC"
+      }
+    },
+    {
+      "name": "Create Order - SELL BTC-USDT",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pair\": \"BTC-USDT\",\n  \"amount\": 0.5,\n  \"direction\": \"SELL\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        },
+        "description": "Create a new SELL market order for BTC-USDT"
+      }
+    },
+    {
+      "name": "Create Multiple Orders (Batch Test)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pair\": \"ETH-USDC\",\n  \"amount\": 5.0,\n  \"direction\": \"BUY\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        },
+        "description": "Use 'Run Collection' to submit 5+ orders simultaneously"
+      }
+    },
+    {
+      "name": "Get Order by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders/:orderId",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", ":orderId"],
+          "variable": [
+            {
+              "key": "orderId",
+              "value": "your-order-id-here"
+            }
+          ]
+        },
+        "description": "Get details of a specific order including logs and execution status"
+      }
+    },
+    {
+      "name": "List All Orders",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        },
+        "description": "List all orders (most recent first)"
+      }
+    },
+    {
+      "name": "List Orders by Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders?status=CONFIRMED&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"],
+          "query": [
+            {
+              "key": "status",
+              "value": "CONFIRMED"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Filter orders by status (PENDING, ROUTING, BUILDING, SUBMITTED, CONFIRMED, FAILED)"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
