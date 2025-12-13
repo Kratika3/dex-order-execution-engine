@@ -1,4 +1,4 @@
-# 🚀 Dex-Order-Execution-Engine (Mock Solana DEX Router)
+# 🚀 Solana-Order-Execution-Engine (Mock Solana DEX Router)
 
 A backend service built in Node.js and TypeScript that executes Market Orders,
 routes them across simulated Solana DEXs, and streams real-time order updates
@@ -70,8 +70,8 @@ src/
 
 ### 1. Clone and Install
 ```bash
-git clone https://github.com/Kratika3/dex-order-execution-engine.git
-cd dex-order-execution-engine
+git clone https://github.com/Kratika3/Solana-order-execution-engine.git
+cd Solana-order-execution-engine
 npm install
 ```
 
@@ -337,8 +337,8 @@ See [INSTALLATION.md](INSTALLATION.md) troubleshooting section for common issues
 
 ## 🔗 Links
 
-- **GitHub**: [https://github.com/Kratika3/dex-order-execution-engine]
-
+- **GitHub**: [https://github.com/Kratika3/Solana-order-execution-engine]
+-
 
 
 ## 👤 Author
