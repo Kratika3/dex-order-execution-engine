@@ -71,8 +71,8 @@ src/
 
 ### 1. Clone and Install
 ```bash
-git clone <your-repo-url>
-cd Kratika
+git clone https://github.com/Kratika3/dex-order-execution-engine.git
+cd dex-order-execution-engine
 npm install
 ```
 
@@ -344,13 +344,13 @@ See [INSTALLATION.md](INSTALLATION.md) troubleshooting section for common issues
 
 ## 🔗 Links
 
-- **GitHub**: [Repository URL]
-- **Live API**: [Deployment URL]
-- **Demo Video**: [YouTube URL]
+- **GitHub**: [https://github.com/Kratika3/dex-order-execution-engine]
+
+
 
 ## 👤 Author
 
-[Your Name]
+[Kratika]
 
 ## 📄 License
 
