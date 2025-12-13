@@ -1,29 +1,28 @@
-# 🚀 Dex Order Execution Engine
+# 🚀 Dex-Order-Execution-Engine (Mock Solana DEX Router)
 
-A high-concurrency Node.js backend that processes Market Orders, routes them to the best DEX (simulated), and pushes real-time updates via WebSocket.
+A backend service built in Node.js and TypeScript that executes Market Orders,
+routes them across simulated Solana DEXs, and streams real-time order updates
+via WebSocket.
 
-## 📚 Quick Navigation
+📚 Quick Navigation
 
-**New here? Start with:** [GETTING_STARTED.md](GETTING_STARTED.md) (5 minute setup)
+| Section | Purpose |
+|-------|---------|
+| GETTING_STARTED.md | Run locally in 5 minutes |
+| ARCHITECTURE.md | System design & decisions |
+| SYSTEM_FLOW.md | Order execution flow |
+| DEPLOYMENT.md | Production deployment |
+| CHECKLIST.md | Verify completeness |
 
-| Guide | Description | For |
-|-------|-------------|-----|
-| [GETTING_STARTED.md](GETTING_STARTED.md) | Fastest setup (5 min) | First-time users |
-| [QUICKSTART.md](QUICKSTART.md) | Step-by-step guide | Beginners |
-| [INSTALLATION.md](INSTALLATION.md) | Detailed setup & verification | Complete setup |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design & decisions | Understanding design |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Production deployment | Going live |
-| [SYSTEM_FLOW.md](SYSTEM_FLOW.md) | Flow diagrams | Visual learners |
-| [NPM_SCRIPTS.md](NPM_SCRIPTS.md) | All commands explained | Reference |
-| [CHECKLIST.md](CHECKLIST.md) | Project completion status | Verification |
-| [COMPLETE_SUMMARY.md](COMPLETE_SUMMARY.md) | Everything in one place | Overview |
 
 ## 🎯 Project Overview
 
 This project implements a **Market Order execution engine** with DEX routing and real-time WebSocket updates. 
 
 **Why Market Orders?**
-Market orders provide immediate execution at the current market price, making them ideal for demonstrating real-time order processing, DEX routing logic, and WebSocket status streaming. They represent the most common order type in trading systems.
+I chose Market Orders because they allow immediate execution at the best
+available price, which makes them ideal for showcasing real-time execution,
+DEX routing decisions, and WebSocket-based lifecycle updates.
 
 **Extensibility:**
 The architecture is designed to support other order types:
@@ -105,7 +104,7 @@ npm run dev
 
 #### Create Order
 ```http
-POST /api/orders
+POST /api/orders/execute
 Content-Type: application/json
 
 {
@@ -206,10 +205,10 @@ Import the provided Postman collection for:
 - Order status checks
 - Concurrent order submission (5+ orders)
 
-### Unit Tests (Coming Soon)
-```bash
-npm test
-```
+Unit & Integration Tests
+Includes tests covering routing logic, queue behavior,
+and WebSocket lifecycle (ongoing improvements).
+
 
 Tests will cover:
 - DEX router quote comparison
@@ -254,14 +253,12 @@ GET /health
 
 ## 📦 Deliverables
 
-- ✅ GitHub repository with clean commits
-- ✅ Complete API implementation
+- ✅ Core backend implementation
 - ✅ WebSocket real-time updates
-- ✅ Comprehensive documentation
-- ✅ Postman collection
-- ✅ Unit & integration tests (≥10)
-- ✅ Deployed to public URL
-- ✅ Demo video (1-2 min)
+- ✅ Queue-based order execution
+- ⏳ Unit & integration tests (in progress)
+- ⏳ Deployment & demo video (planned)
+
 
 ## 📝 npm Commands
 
@@ -329,18 +326,14 @@ Follow [DEPLOYMENT.md](DEPLOYMENT.md) to deploy to:
 See [INSTALLATION.md](INSTALLATION.md) troubleshooting section for common issues.
 
 ---
+## 🧠 What I Learned
 
-## 🎉 Project Stats
+- Designing queue-based backend systems using BullMQ
+- Implementing state machines for order lifecycles
+- Real-time communication using WebSockets
+- Structuring scalable Node.js backends using vertical slice architecture
 
-- **Lines of Code**: ~2,000+
-- **Files Created**: 34
-- **Documentation**: 11 comprehensive guides
-- **Tests**: 10+ unit tests
-- **API Endpoints**: 4 (HTTP + WebSocket)
-- **Time to Setup**: 5 minutes
-- **Time to Deploy**: 10 minutes
 
----
 
 ## 🔗 Links
 
@@ -349,8 +342,8 @@ See [INSTALLATION.md](INSTALLATION.md) troubleshooting section for common issues
 
 
 ## 👤 Author
-
-[Kratika]
+Kratika Pal  
+GitHub: https://github.com/Kratika3
 
 ## 📄 License
 
